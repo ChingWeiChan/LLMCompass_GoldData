@@ -64,7 +64,7 @@ start = time.time() #NOTE : [Timer] Start time
 
 
 def test_memory_bandwidth(memory_bandwidth,global_buffer_bandwidth,buffer_size,lock):
-    # print(f"memory_bandwidth={memory_bandwidth}, global_buffer_bandwidth={global_buffer_bandwidth}, buffer_size={buffer_size}")
+    print(f"memory_bandwidth={memory_bandwidth}, global_buffer_bandwidth={global_buffer_bandwidth}, buffer_size={buffer_size}")
     arch_specs = read_architecture_template("configs/template.json")
     device_count = arch_specs["device_count"]
     arch_specs["device"]["io"]["memory_channel_physical_count"] = memory_bandwidth
@@ -113,38 +113,40 @@ def test_memory_bandwidth(memory_bandwidth,global_buffer_bandwidth,buffer_size,l
         #     )
         with open("ae/figure8/Gold.csv", "a") as f:
             f.write(
-                f"{buffer_size}, {memory_bandwidth}, {global_buffer_bandwidth}, {auto_regression_latency_simulated}\n"
+                f"{buffer_size}, {memory_bandwidth*400}, {global_buffer_bandwidth}, {auto_regression_latency_simulated}\n"
             )
 
 
 lock = Lock()
 processes = [
-    Process(target=test_memory_bandwidth, args=(i*400,j,k, lock))
-    for i in range(1,9) for j in np.linspace(10, 1022, 9 + 1, dtype=int) for k in [0.38,
- 0.52,
- 0.76,
- 0.78,
- 1.02,
- 1.06,
- 1.53,
- 1.62,
- 2.06,
- 2.25,
- 3.12,
- 3.5,
- 4.25,
- 5.0,
- 6.5,
- 8.0,
- 9.0,
- 12.0,
- 14.0,
- 20.0,
- 24.0,
- 28.0,
- 32.0,
- 40.0]
-]
+    Process(target=test_memory_bandwidth, args=(i,j,k, lock))
+    for i in range(1,9) for j in [10,122,572,1022] for k in [20,40]]
+
+    #for j in np.linspace(10, 1022, 9 + 1, dtype=int) for k in [0.38,
+#  0.52,
+#  0.76,
+#  0.78,
+#  1.02,
+#  1.06,
+#  1.53,
+#  1.62,
+#  2.06,
+#  2.25,
+#  3.12,
+#  3.5,
+#  4.25,
+#  5.0,
+#  6.5,
+#  8.0,
+#  9.0,
+#  12.0,
+#  14.0,
+#  20.0,
+#  24.0,
+#  28.0,
+#  32.0,
+#  40.0]
+# ]
 
 try:
     for p in processes:
