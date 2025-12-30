@@ -28,7 +28,7 @@ import time
 import logging
 import sys
 from pathlib import Path
-
+import numpy as np
 
 Path("logs").mkdir(exist_ok=True)
 
@@ -110,16 +110,39 @@ def test_memory_bandwidth(memory_bandwidth,global_buffer_bandwidth,buffer_size,l
         #     f.write(
         #         f"{memory_bandwidth*400}, {compute_area_mm2+io_area_mm2}, {init_latency_simulated}, {model_init.simluate_log}\n"
         #     )
-        with open(f"ae/figure8/memory_bw_results_bs{batch_size}_ar.csv", "a") as f:
+        with open("ae/figure8/Gold.csv", "a") as f:
             f.write(
-                f"{buffer_size}, {memory_bandwidth*400}, {global_buffer_bandwidth}, {auto_regression_latency_simulated}\n"
+                f"{buffer_size}, {memory_bandwidth}, {global_buffer_bandwidth}, {auto_regression_latency_simulated}\n"
             )
 
 
 lock = Lock()
 processes = [
-    Process(target=test_memory_bandwidth, args=(i,j,k, lock))
-    for i in range(1,9) for j in [10,122] for k in [40, 10]
+    Process(target=test_memory_bandwidth, args=(400*i,j,k, lock))
+    for i in range(1,9) for j in np.linspace(10, 1022, 9 + 1, dtype=int) for k in [0.38,
+ 0.52,
+ 0.76,
+ 0.78,
+ 1.02,
+ 1.06,
+ 1.53,
+ 1.62,
+ 2.06,
+ 2.25,
+ 3.12,
+ 3.5,
+ 4.25,
+ 5.0,
+ 6.5,
+ 8.0,
+ 9.0,
+ 12.0,
+ 14.0,
+ 20.0,
+ 24.0,
+ 28.0,
+ 32.0,
+ 40.0]
 ]
 
 try:
