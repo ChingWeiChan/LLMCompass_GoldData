@@ -24,7 +24,6 @@ from multiprocessing import Process, Lock
 import time
 from cost_model.cost_model import calc_compute_chiplet_area_mm2, calc_io_die_area_mm2
 
-import numpy as np
 import time
 import logging
 import sys
@@ -62,38 +61,39 @@ sys.stdout = StreamToLogger(stdout_logger, logging.INFO)
 sys.stderr = StreamToLogger(stderr_logger, logging.ERROR)
 
 start = time.time() #NOTE : [Timer] Start time
-input_seq_length = 2048
-batch_size = 8
-output_seq_length = 1024
-arch_specs = read_architecture_template("configs/template.json")
-device_count = arch_specs["device_count"]
-model_init = TransformerBlockInitComputationTP(
-    d_model=12288,
-    n_heads=96,
-    device_count=device_count,
-    data_type=data_type_dict["fp16"],
-)
-model_auto_regression = TransformerBlockAutoRegressionTP(
-    d_model=12288,
-    n_heads=96,
-    device_count=device_count,
-    data_type=data_type_dict["fp16"],
-)
-_ = model_init(
-    Tensor([batch_size, input_seq_length, model_init.d_model], data_type_dict["fp16"])
-)
-_ = model_auto_regression(
-    Tensor([batch_size, 1, model_init.d_model], data_type_dict["fp16"]),
-    input_seq_length + output_seq_length,
-)
 
 
 def test_memory_bandwidth(memory_bandwidth,global_buffer_bandwidth,buffer_size,lock):
+    arch_specs = read_architecture_template("configs/template.json")
+    device_count = arch_specs["device_count"]
     arch_specs["device"]["io"]["memory_channel_physical_count"] = memory_bandwidth
     arch_specs["device"]["io"]["memory_channel_active_count"] = memory_bandwidth
     arch_specs["device"]["io"]["global_buffer_bandwidth_per_cycle_byte"] = global_buffer_bandwidth
     arch_specs["device"]["io"]["global_buffer_MB"] = buffer_size
     arch_specs["device"]["io"]["physical_global_buffer_MB"] = buffer_size
+    input_seq_length = 2048
+    batch_size = 8
+    output_seq_length = 1024
+
+    model_init = TransformerBlockInitComputationTP(
+        d_model=12288,
+        n_heads=96,
+        device_count=device_count,
+        data_type=data_type_dict["fp16"],
+    )
+    model_auto_regression = TransformerBlockAutoRegressionTP(
+        d_model=12288,
+        n_heads=96,
+        device_count=device_count,
+        data_type=data_type_dict["fp16"],
+    )
+    _ = model_init(
+        Tensor([batch_size, input_seq_length, model_init.d_model], data_type_dict["fp16"])
+    )
+    _ = model_auto_regression(
+        Tensor([batch_size, 1, model_init.d_model], data_type_dict["fp16"]),
+        input_seq_length + output_seq_length,
+    )
     # compute_area_mm2 = calc_compute_chiplet_area_mm2(arch_specs)
     # io_area_mm2 = calc_io_die_area_mm2(arch_specs)
     # print(
