@@ -24,7 +24,44 @@ from multiprocessing import Process, Lock
 import time
 from cost_model.cost_model import calc_compute_chiplet_area_mm2, calc_io_die_area_mm2
 
+import numpy as np
+import time
+import logging
+import sys
+from pathlib import Path
 
+
+Path("logs").mkdir(exist_ok=True)
+
+LOG_FILE = "logs/app.log"
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    filename=LOG_FILE,
+    filemode="a",
+    encoding="utf-8",
+)
+class StreamToLogger:
+    def __init__(self, logger, level):
+        self.logger = logger
+        self.level = level
+        self._buf = ""
+
+    def write(self, message):
+        message = message.rstrip()
+        if message:
+            self.logger.log(self.level, message)
+
+    def flush(self):
+        pass
+
+stdout_logger = logging.getLogger("STDOUT")
+stderr_logger = logging.getLogger("STDERR")
+
+sys.stdout = StreamToLogger(stdout_logger, logging.INFO)
+sys.stderr = StreamToLogger(stderr_logger, logging.ERROR)
+
+start = time.time() #NOTE : [Timer] Start time
 input_seq_length = 2048
 batch_size = 8
 output_seq_length = 1024
@@ -51,37 +88,38 @@ _ = model_auto_regression(
 )
 
 
-def test_memory_bandwidth(memory_bandwidth, lock):
+def test_memory_bandwidth(memory_bandwidth,global_buffer_bandwidth,buffer_size,lock):
     arch_specs["device"]["io"]["memory_channel_physical_count"] = memory_bandwidth
     arch_specs["device"]["io"]["memory_channel_active_count"] = memory_bandwidth
-    compute_area_mm2 = calc_compute_chiplet_area_mm2(arch_specs)
-    io_area_mm2 = calc_io_die_area_mm2(arch_specs)
-    print(
-        f"{memory_bandwidth}, {compute_area_mm2}, {io_area_mm2}, {compute_area_mm2+io_area_mm2}"
-    )
+    arch_specs["device"]["io"]["global_buffer_bandwidth_per_cycle_byte"] = global_buffer_bandwidth
+    arch_specs["device"]["io"]["global_buffer_MB"] = buffer_size
+    arch_specs["device"]["io"]["physical_global_buffer_MB"] = buffer_size
+    # compute_area_mm2 = calc_compute_chiplet_area_mm2(arch_specs)
+    # io_area_mm2 = calc_io_die_area_mm2(arch_specs)
+    # print(
+    #     f"{memory_bandwidth}, {compute_area_mm2}, {io_area_mm2}, {compute_area_mm2+io_area_mm2}"
+    # )
     system = template_to_system(arch_specs)
     auto_regression_latency_simulated = model_auto_regression.compile_and_simulate(
         system, "heuristic-GPU"
     )
-    init_latency_simulated = model_init.compile_and_simulate(system, "heuristic-GPU")
-    print(
-        f"{memory_bandwidth}, {init_latency_simulated}, {auto_regression_latency_simulated}"
-    )
+    # init_latency_simulated = model_init.compile_and_simulate(system, "heuristic-GPU")
+
     with lock:
-        with open(f"ae/figure8/memory_bw_results_bs{batch_size}_init.csv", "a") as f:
-            f.write(
-                f"{memory_bandwidth*400}, {compute_area_mm2+io_area_mm2}, {init_latency_simulated}, {model_init.simluate_log}\n"
-            )
+        # with open(f"ae/figure8/memory_bw_results_bs{batch_size}_init.csv", "a") as f:
+        #     f.write(
+        #         f"{memory_bandwidth*400}, {compute_area_mm2+io_area_mm2}, {init_latency_simulated}, {model_init.simluate_log}\n"
+        #     )
         with open(f"ae/figure8/memory_bw_results_bs{batch_size}_ar.csv", "a") as f:
             f.write(
-                f"{memory_bandwidth*400}, {compute_area_mm2+io_area_mm2}, {auto_regression_latency_simulated}, {model_auto_regression.simluate_log}\n"
+                f"{buffer_size}, {memory_bandwidth*400}, {global_buffer_bandwidth}, {auto_regression_latency_simulated}\n"
             )
 
 
 lock = Lock()
 processes = [
-    Process(target=test_memory_bandwidth, args=(i, lock))
-    for i in [1, 2, 3, 4, 5, 6, 7, 8]
+    Process(target=test_memory_bandwidth, args=(i,j,k, lock))
+    for i in range(1,9) for j in [10,122] for k in [40, 10]
 ]
 
 try:
@@ -98,3 +136,5 @@ except KeyboardInterrupt:
 
 
 print("All processes have finished.")
+end = time.time() #NOTE : [Timer] End time
+print(f"[timer] main TOTAL (single process): {end - start:.3f}s")
