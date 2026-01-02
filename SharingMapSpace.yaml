@@ -1,10 +1,10 @@
 DRAM:
   bandwidth:
     start: 1
-    end: 20
-    point_num: 10
+    end: 100
+    point_num: 100
 GLOBALBUFFER:
   bandwidth:
     start: 10
-    end: 5120
-    point_num: 20
+    end: 512000
+    point_num: 100
