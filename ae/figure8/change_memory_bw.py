@@ -29,6 +29,13 @@ import logging
 import sys
 from pathlib import Path
 import numpy as np
+from omegaconf import OmegaConf
+from types import SimpleNamespace
+import json
+config = OmegaConf.load('SharingMapSpace.yaml')
+# 透過 json 轉換的小技巧來實現遞迴轉換
+config_dict = OmegaConf.to_container(config, resolve=True)
+config = json.loads(json.dumps(config_dict), object_hook=lambda d: SimpleNamespace(**d))
 
 Path("logs").mkdir(exist_ok=True)
 
@@ -113,41 +120,15 @@ def test_memory_bandwidth(memory_bandwidth,global_buffer_bandwidth,buffer_size,l
         #     )
         with open("ae/figure8/Gold.csv", "a") as f:
             f.write(
-                f"{buffer_size}, {memory_bandwidth*400}, {global_buffer_bandwidth}, {auto_regression_latency_simulated}\n"
+                f"{buffer_size}, {memory_bandwidth*400}, {global_buffer_bandwidth}, {auto_regression_latency_simulated}, {model_auto_regression.simluate_log}\n"
             )
 
 
 lock = Lock()
 processes = [
     Process(target=test_memory_bandwidth, args=(i,j,k, lock))
-    for i in range(1,9) for j in [10,122,572,1022] for k in [20,40]]
-
-    #for j in np.linspace(10, 1022, 9 + 1, dtype=int) for k in [0.38,
-#  0.52,
-#  0.76,
-#  0.78,
-#  1.02,
-#  1.06,
-#  1.53,
-#  1.62,
-#  2.06,
-#  2.25,
-#  3.12,
-#  3.5,
-#  4.25,
-#  5.0,
-#  6.5,
-#  8.0,
-#  9.0,
-#  12.0,
-#  14.0,
-#  20.0,
-#  24.0,
-#  28.0,
-#  32.0,
-#  40.0]
-# ]
-
+    for j in np.linspace(config.GLOBALBUFFER.bandwidth.start, config.GLOBALBUFFER.bandwidth.end, config.GLOBALBUFFER.bandwidth.point_num, dtype=int) for i in np.linspace(config.DRAM.bandwidth.start, config.DRAM.bandwidth.end, config.DRAM.bandwidth.point_num, dtype=int) for k in [20,40]
+]
 try:
     for p in processes:
         p.start()

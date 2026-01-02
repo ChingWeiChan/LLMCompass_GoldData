@@ -39545,3 +39545,23 @@ During handling of the above exception, another exception occurred:
 2025-12-30 16:47:18,489 [INFO] memory_bandwidth=8, global_buffer_bandwidth=1022, buffer_size=40
 2025-12-30 16:48:23,570 [INFO] All processes have finished.
 2025-12-30 16:48:23,571 [INFO] [timer] main TOTAL (single process): 65.800s
+2025-12-31 14:13:50,726 [INFO] memory_bandwidth=1, global_buffer_bandwidth=572, buffer_size=20
+2025-12-31 14:13:50,733 [INFO] memory_bandwidth=2, global_buffer_bandwidth=572, buffer_size=20
+2025-12-31 14:13:50,737 [INFO] memory_bandwidth=3, global_buffer_bandwidth=572, buffer_size=20
+2025-12-31 14:13:50,742 [INFO] memory_bandwidth=4, global_buffer_bandwidth=572, buffer_size=20
+2025-12-31 14:13:50,746 [INFO] memory_bandwidth=5, global_buffer_bandwidth=572, buffer_size=20
+2025-12-31 14:13:50,750 [INFO] memory_bandwidth=6, global_buffer_bandwidth=572, buffer_size=20
+2025-12-31 14:13:50,754 [INFO] memory_bandwidth=7, global_buffer_bandwidth=572, buffer_size=20
+2025-12-31 14:13:50,758 [INFO] memory_bandwidth=8, global_buffer_bandwidth=572, buffer_size=20
+2025-12-31 14:14:03,768 [INFO] All processes have finished.
+2025-12-31 14:14:03,768 [INFO] [timer] main TOTAL (single process): 13.056s
+2025-12-31 14:14:31,121 [INFO] memory_bandwidth=1, global_buffer_bandwidth=572, buffer_size=20
+2025-12-31 14:14:31,127 [INFO] memory_bandwidth=2, global_buffer_bandwidth=572, buffer_size=20
+2025-12-31 14:14:31,130 [INFO] memory_bandwidth=3, global_buffer_bandwidth=572, buffer_size=20
+2025-12-31 14:14:31,134 [INFO] memory_bandwidth=4, global_buffer_bandwidth=572, buffer_size=20
+2025-12-31 14:14:31,138 [INFO] memory_bandwidth=5, global_buffer_bandwidth=572, buffer_size=20
+2025-12-31 14:14:31,141 [INFO] memory_bandwidth=6, global_buffer_bandwidth=572, buffer_size=20
+2025-12-31 14:14:31,144 [INFO] memory_bandwidth=7, global_buffer_bandwidth=572, buffer_size=20
+2025-12-31 14:14:31,149 [INFO] memory_bandwidth=8, global_buffer_bandwidth=572, buffer_size=20
+2025-12-31 14:14:43,161 [INFO] All processes have finished.
+2025-12-31 14:14:43,161 [INFO] [timer] main TOTAL (single process): 12.049s
