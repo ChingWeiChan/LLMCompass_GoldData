@@ -71,7 +71,6 @@ start = time.time() #NOTE : [Timer] Start time
 
 
 def test_memory_bandwidth(memory_bandwidth,global_buffer_bandwidth,buffer_size,lock):
-    print(f"memory_bandwidth={memory_bandwidth}, global_buffer_bandwidth={global_buffer_bandwidth}, buffer_size={buffer_size}")
     arch_specs = read_architecture_template("configs/template.json")
     device_count = arch_specs["device_count"]
     arch_specs["device"]["io"]["memory_channel_physical_count"] = memory_bandwidth
